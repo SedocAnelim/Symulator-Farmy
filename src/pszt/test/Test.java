@@ -1,5 +1,6 @@
 package pszt.test;
 
+
 import pszt.ga.*;
 import pszt.ga.exceptions.ElitismException;
 import pszt.ga.exceptions.ParentSizeException;
@@ -9,17 +10,30 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by Michał on 07-04-2017.
+ * Created by MichaĹ‚ on 07-04-2017.
  */
 public class Test
 {
-    public static void main(String args[]) throws ProbabilityException, ElitismException, ParentSizeException
+	
+    private static List<DoubleSummaryStatistics> lista = new ArrayList<DoubleSummaryStatistics>();
+
+	public static List<DoubleSummaryStatistics> getDataList(){
+    	return lista;
+    }
+	
+	public static List<DoubleSummaryStatistics> setDataList(List<DoubleSummaryStatistics> dataList){
+		lista = dataList;
+		return lista;
+	}
+	
+	
+    public static void main() throws ProbabilityException, ElitismException, ParentSizeException
     {
         List<Computer> computerList = new ArrayList<>();
 
         Random random = new Random();
 
-        // Tworzymy farmę komputerów
+        // Tworzymy farmÄ™ komputerĂłw
         for (int i = 0; i < 10; i++)
         {
             computerList.add(new Computer(i,
@@ -36,28 +50,31 @@ public class Test
                     random.nextInt(1000) + 2000));
         }
 
-        // Tworzymy nową populacje
+        // Tworzymy nowÄ… populacje
         Population population = new Population(10, simulationList, computerList);
 
-        // Generujemy losową populajce
+        // Generujemy losowÄ… populajce
         population.generatePopulation();
 
-        // Inicjujemy algorytm, przekazujemy początkową populacje i funkcję liczącą ...
+        // Inicjujemy algorytm, przekazujemy poczÄ…tkowÄ… populacje i funkcjÄ™ liczÄ…cÄ… ...
         GeneticAlgorithm ga = new GeneticAlgorithm(population, evaluateFitness);
 
-        // Dodajame trochę krzyżowania, a co tam :D
+        // Dodajame trochÄ™ krzyĹĽowania, a co tam :D
         ga.enableCrossover(0.80, 6);
 
-        // Dobra mutacja nie jest zła
+        // Dobra mutacja nie jest zĹ‚a
         ga.enableMutation(0.10);
 
         // Chwila prawdy
         ga.run();
+        
+        setDataList(ga.getDataList());
+        
     }
 
     /**
-     * Poglądowa implementacja funkcji obliczjacacej wartość funkcji przetrwania.
-     * Muszę tu jeszcze kilka rzeczy dorobić
+     * PoglÄ…dowa implementacja funkcji obliczjacacej wartoĹ›Ä‡ funkcji przetrwania.
+     * MuszÄ™ tu jeszcze kilka rzeczy dorobiÄ‡
      */
     private static CallableWithArgument<Double, Chromosome> evaluateFitness = (chromosome) ->
     {
@@ -86,4 +103,6 @@ public class Test
 
             return 1 - worstCase / 32;
     };
+    
+    
 }
