@@ -7,8 +7,11 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by Michał on 2017-04-07.
+ * Created by MichaĹ‚ on 2017-04-07.
  */
 public class GeneticAlgorithm
 {
@@ -17,9 +20,14 @@ public class GeneticAlgorithm
     private Population population;
     private final List<? extends  Object> geneValues;
     private CallableWithArgument<Double, Chromosome> evaluateFitness;
-    private double mutationProbability = 0;
-    private double crossoverProbability = 0;
+    private double mutationProbability = 0.00;
+    private double crossoverProbability = 0.00;
     private int parentSize = 0;
+    private List<DoubleSummaryStatistics> dataList = new ArrayList<DoubleSummaryStatistics>(ALGORITHM_ITERATION);
+    
+    public List<DoubleSummaryStatistics> getDataList(){
+    	return dataList;
+    }
 
     public GeneticAlgorithm(Population population, CallableWithArgument<Double, Chromosome> evaluateFunction)
     {
@@ -47,7 +55,7 @@ public class GeneticAlgorithm
 
     public void run()
     {
-        assert mutationProbability != 0 && crossoverProbability != 0: "Mutacja i krzyżowanie są wyłączne";
+        assert mutationProbability != 0 && crossoverProbability != 0: "Mutacja i krzyĹĽowanie sÄ… wyĹ‚Ä…czne";
         
         int i = 0;
         List<Chromosome> currentPopulation = population.getChromosomes();
@@ -56,26 +64,29 @@ public class GeneticAlgorithm
 
         //Chromosome best = parentsRating.entrySet().stream().max(Map.Entry.comparingByValue()).get().getKey();
 
-        printPopulationStats(i, stats);
+        //printPopulationStats(i, stats);
         while (i < ALGORITHM_ITERATION)
         {
+
             List<Chromosome> children = parentSelection(parentsRating);
             if(crossoverProbability != 0) crossOver(children);
             if(mutationProbability != 0) mutate(children);
             Map<Chromosome, Double> childernRating = populationEvaluation(children);
             Map<Chromosome, Double> newPopulationRating = selectNewPopulation(parentsRating, childernRating);
             stats = populationStats(newPopulationRating);
+            dataList.add(i, stats);
             printPopulationStats(i, stats);
             currentPopulation = new LinkedList<>(newPopulationRating.keySet());
             parentsRating = newPopulationRating;
             i++;
         }
         i = 7;
+        
     }
 
     private void printPopulationStats(int generation, DoubleSummaryStatistics stats)
-    {
-        System.out.println("Population " + generation + " fitness= " + stats.getMax() + " average= " + stats.getAverage());
+    {  
+    	System.out.println("Population " + generation + " fitness= " + stats.getMax() + " average= " + stats.getAverage());
     }
 
     private DoubleSummaryStatistics populationStats(Map<Chromosome, Double> populationRating)
